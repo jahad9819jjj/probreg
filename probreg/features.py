@@ -93,7 +93,7 @@ class OneClassSVM(Feature):
 
     def compute(self, data: np.ndarray):
         self._clf.fit(data)
-        z = np.power(2.0 * np.pi * self._sigma ** 2, self._dim * 0.5)
+        z = np.power(2.0 * np.pi * self._sigma**2, self._dim * 0.5)
         return self._clf.support_vectors_, self._clf.dual_coef_[0] * z
 
     def annealing(self):

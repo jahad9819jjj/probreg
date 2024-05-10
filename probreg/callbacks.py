@@ -18,7 +18,7 @@ except:
 from .transformation import Transformation
 
 
-class Plot2DCallback(object):
+class Plot2DCallback:
     """Display the 2D registration result of each iteration.
 
     Args:
@@ -62,12 +62,12 @@ class Plot2DCallback(object):
         self._cnt += 1
 
 
-class Open3dVisualizerCallback(object):
+class Open3dVisualizerCallback:
     """Display the 3D registration result of each iteration.
 
     Args:
-        source (numpy.ndarray): Source point cloud data.
-        target (numpy.ndarray): Target point cloud data.
+        source (open3d.geometry.PointCloud): Source point cloud data.
+        target (open3d.geometry.PointCloud): Target point cloud data.
         save (bool, optional): If this flag is True,
             each iteration image is saved in a sequential number.
         keep_window (bool, optional): If this flag is True,
@@ -76,7 +76,12 @@ class Open3dVisualizerCallback(object):
     """
 
     def __init__(
-        self, source: np.ndarray, target: np.ndarray, save: bool = False, keep_window: bool = True, fov: Any = None
+        self,
+        source: o3.geometry.PointCloud,
+        target: o3.geometry.PointCloud,
+        save: bool = False,
+        keep_window: bool = True,
+        fov: Any = None,
     ):
         self._vis = o3.visualization.Visualizer()
         self._vis.create_window()
@@ -85,9 +90,12 @@ class Open3dVisualizerCallback(object):
         self._result = copy.deepcopy(self._source)
         self._save = save
         self._keep_window = keep_window
-        self._source.paint_uniform_color([1, 0, 0])
-        self._target.paint_uniform_color([0, 1, 0])
-        self._result.paint_uniform_color([0, 0, 1])
+        if not self._source.has_colors():
+            self._source.paint_uniform_color([1, 0, 0])
+        if not self._target.has_colors():
+            self._target.paint_uniform_color([0, 1, 0])
+        if not self._result.has_colors():
+            self._result.paint_uniform_color([0, 0, 1])
         self._vis.add_geometry(self._source)
         self._vis.add_geometry(self._target)
         self._vis.add_geometry(self._result)
