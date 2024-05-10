@@ -33,11 +33,11 @@ class CostFunction:
 def compute_l2_dist(
     mu_source: np.ndarray, phi_source: np.ndarray, mu_target: np.ndarray, phi_target: np.ndarray, sigma: float
 ):
-    z = np.power(2.0 * np.pi * sigma ** 2, mu_source.shape[1] * 0.5)
+    z = np.power(2.0 * np.pi * sigma**2, mu_source.shape[1] * 0.5)
     gtrans = gt.GaussTransform(mu_target, np.sqrt(2.0) * sigma)
     phi_j_e = gtrans.compute(mu_source, phi_target / z)
     phi_mu_j_e = gtrans.compute(mu_source, phi_target * mu_target.T / z).T
-    g = (phi_source * phi_j_e * mu_source.T - phi_source * phi_mu_j_e.T).T / (2.0 * sigma ** 2)
+    g = (phi_source * phi_j_e * mu_source.T - phi_source * phi_mu_j_e.T).T / (2.0 * sigma**2)
     return -np.dot(phi_source, phi_j_e), g
 
 

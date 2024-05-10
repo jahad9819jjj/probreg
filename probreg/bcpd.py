@@ -58,7 +58,7 @@ class BayesianCoherentPointDrift:
         pmat = np.exp(-pmat / (2.0 * sigma2))
         pmat /= (2.0 * np.pi * sigma2) ** (dim * 0.5)
         pmat = pmat.T
-        pmat *= np.exp(-(scale ** 2) / (2 * sigma2) * np.diag(sigma_mat) * dim)
+        pmat *= np.exp(-(scale**2) / (2 * sigma2) * np.diag(sigma_mat) * dim)
         pmat *= (1.0 - w) * alpha
         den = w / target.shape[0] + np.sum(pmat, axis=1)
         den[den == 0] = np.finfo(np.float32).eps
@@ -126,7 +126,7 @@ class CombinedBCPD(BayesianCoherentPointDrift):
         nu_d, nu, n_p, px, x_hat = estep_res
         dim = source.shape[1]
         m = source.shape[0]
-        s2s2 = rigid_trans.scale ** 2 / (sigma2_p ** 2)
+        s2s2 = rigid_trans.scale**2 / (sigma2_p**2)
         sigma_mat_inv = lmd * gmat_inv + s2s2 * np.diag(nu)
         sigma_mat = np.linalg.inv(sigma_mat_inv)
         residual = rigid_trans.inverse().transform(x_hat) - source
@@ -152,7 +152,7 @@ class CombinedBCPD(BayesianCoherentPointDrift):
         s1 = np.dot(target.ravel(), np.kron(nu_d, np.ones(dim)) * target.ravel())
         s2 = np.dot(px.ravel(), y_hat.ravel())
         s3 = np.dot(y_hat.ravel(), np.kron(nu, np.ones(dim)) * y_hat.ravel())
-        sigma2 = (s1 - 2.0 * s2 + s3) / (n_p * dim) + scale ** 2 * sigma2_m
+        sigma2 = (s1 - 2.0 * s2 + s3) / (n_p * dim) + scale**2 * sigma2_m
         return MstepResult(tf.CombinedTransformation(rot, t, scale, v_hat), u_hat, sigma_mat, alpha, sigma2)
 
 

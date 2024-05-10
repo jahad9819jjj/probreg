@@ -20,6 +20,7 @@ This package implements several algorithms using stochastic models and provides 
 * Maximum likelihood when the target or source point cloud is observation data
     * [Coherent Point Drift (2010)](https://arxiv.org/pdf/0905.2635.pdf)
     * [Extended Coherent Point Drift (2016)](https://ieeexplore.ieee.org/abstract/document/7477719) (add correspondence priors to CPD)
+    * [Color Coherent Point Drift (2018)](https://arxiv.org/pdf/1802.01516)
     * [FilterReg (CVPR2019)](https://arxiv.org/pdf/1811.10136.pdf)
 * Variational Bayesian inference
     * [Bayesian Coherent Point Drift (2020)](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8985307)
