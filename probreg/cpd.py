@@ -89,14 +89,13 @@ class CoherentPointDrift:
         """Expectation step for CPD"""
         assert t_source.ndim == 2 and target.ndim == 2, "source and target must have 2 dimensions."
         pmat = self._compute_pmat_numerator(t_source[:, : self._N_DIM], target[:, : self._N_DIM], sigma2)
-        if self._use_color:
-            pmat_c = self._compute_pmat_numerator(t_source[:, 3:], target[:, 3:], sigma2_c)
 
         c = (2.0 * np.pi * sigma2) ** (self._N_DIM * 0.5)
         c *= w / (1.0 - w) * t_source.shape[0] / target.shape[0]
         den = self.xp.sum(pmat, axis=0)
         den[den == 0] = self.xp.finfo(np.float32).eps
         if self._use_color:
+            pmat_c = self._compute_pmat_numerator(t_source[:, self._N_DIM :], target[:, self._N_DIM :], sigma2_c)
             den_c = self.xp.sum(pmat_c, axis=0)
             den_c[den_c == 0] = self.xp.finfo(np.float32).eps
             den = np.multiply(den, den_c)
@@ -106,10 +105,9 @@ class CoherentPointDrift:
             )
             den += o_c
             c *= (2.0 * np.pi * sigma2_c) ** (self._N_COLOR * 0.5)
+            pmat = self.xp.multiply(pmat, pmat_c)
         den += c
 
-        if self._use_color:
-            pmat = self.xp.multiply(pmat, pmat_c)
         pmat = self.xp.divide(pmat, den)
         pt1 = self.xp.sum(pmat, axis=0)
         p1 = self.xp.sum(pmat, axis=1)
