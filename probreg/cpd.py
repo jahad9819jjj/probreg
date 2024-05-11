@@ -25,6 +25,14 @@ MstepResult.__doc__ = """Result of Maximization step.
 """
 
 
+class DistModule:
+    def __init__(self, xp):
+        self.xp = xp
+
+    def cdist(self, x1, x2, metric):
+        return self.xp.stack([self.xp.sum(self.xp.square(x2 - ts), axis=1) for ts in x1])
+
+
 @six.add_metaclass(abc.ABCMeta)
 class CoherentPointDrift:
     """Coherent Point Drift algorithm.
@@ -50,12 +58,11 @@ class CoherentPointDrift:
         self._use_color = use_color
         if use_cuda:
             import cupy as cp
-            from cupyx.scipy.spatial import distance as cupy_distance
 
             from . import cupy_utils
 
             self.xp = cp
-            self.distance_module = cupy_distance
+            self.distance_module = DistModule(cp)
             self.cupy_utils = cupy_utils
             self._squared_kernel_sum = cupy_utils.squared_kernel_sum
         else:

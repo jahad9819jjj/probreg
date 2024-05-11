@@ -7,9 +7,7 @@ if use_cuda:
 else:
     cp = np
     to_cpu = lambda x: x
-import open3d as o3
 from probreg import cpd
-from probreg import callbacks
 import utils
 import time
 
