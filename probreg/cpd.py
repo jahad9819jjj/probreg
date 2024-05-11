@@ -284,7 +284,7 @@ class AffineCPD(CoherentPointDrift):
         sigma2 = max(sigma2, np.finfo(np.float32).eps)
         q = (tr_xp1x - 2 * tr_ab + tr_xpyb) / (2.0 * sigma2)
         q += dim * n_p * 0.5 * np.log(sigma2)
-        return MstepResult(tf.AffineTransformation(b, t), sigma2, q)
+        return MstepResult(tf.AffineTransformation(b, t, xp=xp), sigma2, q)
 
 
 class NonRigidCPD(CoherentPointDrift):
@@ -316,7 +316,7 @@ class NonRigidCPD(CoherentPointDrift):
 
     def set_source(self, source: np.ndarray) -> None:
         self._source = source
-        self._tf_obj = self._tf_type(None, self._source, self._beta)
+        self._tf_obj = self._tf_type(None, self._source, self._beta, xp=self.xp)
 
     def maximization_step(
         self, target: np.ndarray, estep_res: EstepResult, sigma2_p: Optional[float] = None

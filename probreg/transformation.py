@@ -22,7 +22,13 @@ class Transformation:
 
     def transform(self, points, array_type=o3.utility.Vector3dVector):
         if isinstance(points, array_type):
-            return array_type(self._transform(self.xp.asarray(points)))
+            _array_after_transform = self._transform(self.xp.asarray(points))
+
+            if self.xp.__name__ == "cupy":
+                _array_after_transform = _array_after_transform.get()
+
+            return array_type(_array_after_transform)
+
         return self.xp.c_[self._transform(points[:, :3]), points[:, 3:]]
 
     @abc.abstractmethod
