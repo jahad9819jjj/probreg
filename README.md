@@ -63,6 +63,11 @@ cd probreg
 pip install -e .
 ```
 
+Note that in the case of Mac, need to execute the following command before above procedures:
+```:shell
+export LIBRARY PATH=/opt/homebrew/opt/libomp/lib:$LIBRARY_PATH 
+```
+
 ## Getting Started
 
 This is a sample code that reads a PCD file and calls CPD registration.
