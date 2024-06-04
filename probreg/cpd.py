@@ -162,7 +162,7 @@ class CoherentPointDrift:
         assert not self._tf_type is None, "transformation type is None."
         polyscope.init(); self.step = 0
         self.ps_target = polyscope.register_point_cloud("target", target[:, :3])
-        self.ref_idx = 1715
+        self.ref_idx = 0
         self.ps_target_ref = polyscope.register_point_cloud("target_ref", target[self.ref_idx, :3].reshape(1, 3), radius=0.012)
         self.ps_source = polyscope.register_point_cloud("source", self._source[:, :3])
         res = self._initialize(target[:, : self._N_DIM])
