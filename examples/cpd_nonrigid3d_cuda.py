@@ -1,5 +1,5 @@
 import numpy as np
-use_cuda = True
+use_cuda = False
 if use_cuda:
     import cupy as cp
     to_cpu = cp.asnumpy
@@ -12,7 +12,15 @@ from probreg import cpd
 import utils
 import time
 
-source, target = utils.prepare_source_and_target_nonrigid_3d('face-x.txt', 'face-y.txt', voxel_size=5.0)
+source, target = utils.prepare_source_and_target_nonrigid_3d('examples/face-x.txt', 'examples/face-y.txt', 
+                                                            ds_param={'voxel_size':5.0, 'num':1000},
+                                                            data_type='txt')
+
+# TODO: extract mesh vertices and triangles from previous function
+# TODO: put vertices and triangles into source_pt and target_pt, source_face, target_face
+# TODO: if isinstance(hoge, o3.geometry.PointCloud) or isinstance(hoge, o3.geometry.TriangleMesh)
+
+
 source_pt = cp.asarray(source.points, dtype=cp.float32)
 target_pt = cp.asarray(target.points, dtype=cp.float32)
 
