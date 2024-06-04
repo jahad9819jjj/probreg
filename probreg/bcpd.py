@@ -13,6 +13,7 @@ from scipy.spatial import cKDTree
 from . import math_utils as mu
 from . import transformation as tf
 from .log import log
+import polyscope
 
 EstepResult = namedtuple("EstepResult", ["nu_d", "nu", "n_p", "px", "x_hat"])
 MstepResult = namedtuple("MstepResult", ["transformation", "u_hat", "sigma_mat", "alpha", "sigma2"])
@@ -69,6 +70,12 @@ class BayesianCoherentPointDrift:
         nu_inv = 1.0 / np.kron(nu, np.ones(dim))
         px = np.dot(np.kron(pmat, np.identity(dim)), target.ravel())
         x_hat = np.multiply(px, nu_inv).reshape(-1, dim)
+        
+        # Maybe high similarity based on euclid distance btw source and target
+        # So need to use geodesic kernel or give good initial value
+        self.ps_source.add_scalar_quantity(f"{self.step}", pmat[:, self.ref_idx])
+        self.step += 1
+        
         return EstepResult(nu_d, nu, np.sum(nu), px.reshape(-1, dim), x_hat)
 
     def maximization_step(self, target, estep_res, sigma2_p=None):
@@ -81,6 +88,13 @@ class BayesianCoherentPointDrift:
 
     def registration(self, target, w=0.0, maxiter=50, tol=0.001):
         assert not self._tf_type is None, "transformation type is None."
+        
+        polyscope.init(); self.step = 0
+        self.ps_target = polyscope.register_point_cloud("target", target[:, :3])
+        self.ref_idx = 0 
+        self.ps_target_ref = polyscope.register_point_cloud("target_ref", target[self.ref_idx, :3].reshape(1, 3), radius=0.012)
+        self.ps_source = polyscope.register_point_cloud("source", self._source[:, :3])
+        
         res = self._initialize(target)
         target_tree = cKDTree(target, leafsize=10)
         rmse = None
@@ -97,6 +111,7 @@ class BayesianCoherentPointDrift:
             if not rmse is None and abs(rmse - tmp_rmse) < tol:
                 break
             rmse = tmp_rmse
+        polyscope.show()
         return res.transformation
 
 

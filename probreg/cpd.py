@@ -14,6 +14,9 @@ from . import math_utils as mu
 from . import transformation as tf
 from .log import log
 
+import matplotlib.pyplot as plt
+import polyscope
+
 EstepResult = namedtuple("EstepResult", ["pt1", "p1", "px", "n_p"])
 MstepResult = namedtuple("MstepResult", ["transformation", "sigma2", "q"])
 MstepResult.__doc__ = """Result of Maximization step.
@@ -96,6 +99,17 @@ class CoherentPointDrift:
         """Expectation step for CPD"""
         assert t_source.ndim == 2 and target.ndim == 2, "source and target must have 2 dimensions."
         pmat = self._compute_pmat_numerator(t_source[:, : self._N_DIM], target[:, : self._N_DIM], sigma2)
+        
+        # p_mat_norm = (pmat - np.min(pmat)) / (np.max(pmat) - np.min(pmat))
+        # plt.figure(figsize=(8, 6))
+        # plt.imshow(p_mat_norm, cmap='jet')
+        # plt.colorbar(label='Similarity')
+        # plt.xlabel('Target Points')
+        # plt.ylabel('Source Points')
+        # plt.title('Similarity Matrix')
+        # plt.tight_layout()
+        # plt.savefig('./similarity_matrix.png')
+        # plt.close()
 
         c = (2.0 * np.pi * sigma2) ** (self._N_DIM * 0.5)
         c *= w / (1.0 - w) * t_source.shape[0] / target.shape[0]
@@ -119,6 +133,11 @@ class CoherentPointDrift:
         pt1 = self.xp.sum(pmat, axis=0)
         p1 = self.xp.sum(pmat, axis=1)
         px = self.xp.dot(pmat, target[:, : self._N_DIM])
+        
+        self.ps_source.add_scalar_quantity(f"{self.step}", pmat[:, self.ref_idx])
+        # self.ps_source.add_scalar_quantity(f"{self.step}", p1)
+        # self.ps_target.add_scalar_quantity(f"{self.step}", p1)
+        self.step += 1
         return EstepResult(pt1, p1, px, np.sum(p1))
 
     def maximization_step(
@@ -141,6 +160,11 @@ class CoherentPointDrift:
 
     def registration(self, target: np.ndarray, w: float = 0.0, maxiter: int = 50, tol: float = 0.001) -> MstepResult:
         assert not self._tf_type is None, "transformation type is None."
+        polyscope.init(); self.step = 0
+        self.ps_target = polyscope.register_point_cloud("target", target[:, :3])
+        self.ref_idx = 1715
+        self.ps_target_ref = polyscope.register_point_cloud("target_ref", target[self.ref_idx, :3].reshape(1, 3), radius=0.012)
+        self.ps_source = polyscope.register_point_cloud("source", self._source[:, :3])
         res = self._initialize(target[:, : self._N_DIM])
         sigma2_c = 0.0
         if self._use_color:
@@ -156,6 +180,7 @@ class CoherentPointDrift:
             if abs(res.q - q) < tol:
                 break
             q = res.q
+        polyscope.show()
         return res
 
 
