@@ -88,6 +88,7 @@ class CoherentPointDrift:
         pmat = self.xp.exp(-pmat / (2.0 * sigma2))
         return pmat
 
+    # TODO: if source_faces and target_faces are not None, use Geodesic kernel
     def expectation_step(
         self,
         t_source: np.ndarray,
@@ -158,6 +159,7 @@ class CoherentPointDrift:
     ) -> Optional[MstepResult]:
         return None
 
+    # TODO: if target_faces is not None, then put into self.target_faces
     def registration(self, target: np.ndarray, w: float = 0.0, maxiter: int = 50, tol: float = 0.001) -> MstepResult:
         assert not self._tf_type is None, "transformation type is None."
         polyscope.init(); self.step = 0
@@ -329,7 +331,7 @@ class NonRigidCPD(CoherentPointDrift):
         use_color (bool, optional): Use color information (if available).
         use_cuda (bool, optional): Use CUDA.
     """
-
+    # TODO:if source_triangle then put into self.source_triangles
     def __init__(
         self,
         source: Optional[np.ndarray] = None,
