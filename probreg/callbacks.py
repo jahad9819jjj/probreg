@@ -119,3 +119,39 @@ class Open3dVisualizerCallback:
         if self._save:
             self._vis.capture_screen_image("image_%04d.jpg" % self._cnt)
         self._cnt += 1
+
+import polyscope
+class PolyscopeVisualizerCallback:
+    def __init__(self,
+                 source,
+                 target,
+                 ) -> None:
+        polyscope.init()
+        self._source = source
+        self._target = target
+        self._result = copy.deepcopy(self._source)
+        if not self._source.has_colors():
+            self._source.paint_uniform_color([1, 0, 0])
+        if not self._target.has_colors():
+            self._target.paint_uniform_color([0, 1, 0])
+        if not self._result.has_colors():
+            self._result.paint_uniform_color([0, 0, 1])
+        self.ps_source = polyscope.register_point_cloud(name='source', points=np.asarray(self._source.points))
+        self.ps_source.add_color_quantity('color', np.asarray(self._source.colors))
+        self.ps_target = polyscope.register_point_cloud(name='target',points=np.asarray(self._target.points))
+        self.ps_target.add_color_quantity('color', np.asarray(self._target.colors))
+        self.ps_result = polyscope.register_point_cloud(name='source_dash',points=np.asarray(self._result.points))
+        self.ps_result.add_color_quantity('color', np.asarray(self._result.colors))
+        self._cnt = 0
+
+        polyscope.set_user_callback(self.__call__)
+        polyscope.show()
+        
+
+    def __call__(self, transformation: Transformation):
+        self._result.points = transformation.transform(self._source.points)
+        self.ps_result.update_point_positions(np.asarray(self._result.points))
+        self._cnt += 1
+
+    def __del__(self):
+        polyscope.clear_user_callback()
